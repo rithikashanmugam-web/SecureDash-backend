@@ -9,7 +9,6 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// ✅ CORS setup
 // ✅ CORS setup: allow local + deployed frontend
 const allowedOrigins = [
   "http://localhost:5173",
@@ -26,11 +25,14 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // include OPTIONS for preflight
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // include OPTIONS
+    allowedHeaders: ["Content-Type", "Authorization"], // include headers needed for JWT
     credentials: true,
   })
 );
 
+// ✅ Handle OPTIONS preflight requests for all routes
+app.options("*", cors());
 
 // ✅ API routes
 const userRoutes = require("./routes/userRoutes");
@@ -49,7 +51,7 @@ if (process.env.NODE_ENV === "production") {
 
 // ✅ Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
