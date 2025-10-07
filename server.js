@@ -40,14 +40,17 @@ const userRoutes = require("./routes/userRoutes");
 app.use("/users", userRoutes); // Notice: No "/api" prefix (matches your frontend call)
 
 // ✅ Serve frontend in production
+// ✅ Serve frontend in production
 const frontendBuildPath = path.join(__dirname, "../frontend/dist");
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(frontendBuildPath));
 
-  app.get("/*", (req, res) => {
+  // ⚡ Fix for Express v5 (use regex instead of * or /*)
+  app.get(/.*/, (req, res) => {
     res.sendFile(path.join(frontendBuildPath, "index.html"));
   });
 }
+
 
 // ✅ Connect MongoDB
 mongoose
